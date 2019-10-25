@@ -5,8 +5,9 @@ use App\Model\OCR_Handle;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    \App\Model\Reporter::getInstance()->validateArray(array());
     // TESTING CODE. JUST A PLACE TO RUN AND DEBUG FUNCTIONS
-    $raw = NULL;
+    /*$raw = NULL;
     if (\App\Model\PDF_To_Text::getInstance()->lookForPDFLink())
         if (\App\Model\PDF_To_Text::getInstance()->downloadPDF()) {
             $raw = \App\Model\PDF_To_Text::getInstance()->parseToText();
@@ -46,5 +47,5 @@ Route::get('/', function () {
         }
     }
     file_put_contents(storage_path("/app/typos.json"), json_encode($unique, JSON_UNESCAPED_UNICODE));*/
-    return response()->json($days);
+    //return response()->json($days);
 });

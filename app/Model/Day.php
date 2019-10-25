@@ -3,7 +3,6 @@
 
 namespace App\Model;
 
-
 class Day
 {
     public const

@@ -28,8 +28,13 @@ class OCR_Handle
      */
     private function __construct()
     {
-        $this->typos_fix_list = json_decode(file_get_contents(storage_path(self::TYPOS_LIST_PATH)), false);
-        $this->removes_list = json_decode(file_get_contents(storage_path(self::REMOVES_LIST_PATH)), false);
+        try {
+            $this->typos_fix_list = json_decode(file_get_contents(storage_path(self::TYPOS_LIST_PATH)), false);
+            $this->removes_list = json_decode(file_get_contents(storage_path(self::REMOVES_LIST_PATH)), false);
+        }
+        catch (\Exception $ex){
+            Reporter::getInstance()->report(__CLASS__.__FUNCTION__, $ex->getMessage());
+        }
     }
 
     /**
