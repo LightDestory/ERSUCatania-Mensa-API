@@ -1,3 +1,4 @@
 *
 !.gitignore
-!*.json
+!removes.json
+!typos.json

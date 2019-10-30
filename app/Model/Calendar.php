@@ -7,11 +7,9 @@ use DateTime;
 
 class Calendar
 {
-    private static $instance;
-
     private const
         CALENDAR_SETTING = 'monday this week';
-
+    private static $instance;
     private $clock;
 
     private function __construct()

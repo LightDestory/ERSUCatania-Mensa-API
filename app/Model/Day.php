@@ -8,13 +8,18 @@ class Day
     public const
         MAIN_NAME = 'primi',
         SECOND_NAME = 'secondi',
-        ACCOMPANIMENT_NAME = 'contorno',
+        ACCOMPANIMENT_NAME = 'contorni',
         LUNCH_NAME = 'pranzo',
         DINNER_NAME = 'cena';
 
     public static $week_days = array
     (
-        "lunedi", "martedi", "mercoledi", "giovedi", "venerdi", "sabato", "domenica"
+        'lunedi', 'martedi', 'mercoledi', 'giovedi', 'venerdi', 'sabato', 'domenica'
+    );
+
+    public static $day_times = array
+    (
+        'pranzo', 'cena'
     );
 
     private $menu, $name;

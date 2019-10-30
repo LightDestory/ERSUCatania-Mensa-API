@@ -7,7 +7,6 @@ use Ilovepdf\ExtractTask;
 
 class PDF_To_Text
 {
-    private static $instance;
     private const
         ERSU_URL_ID = 'PDF_FILE_URL',
         ERSU_SCRAP_REGEX = '/http:\/\/www\.ersucatania\.gov\.it\/wp-content\/uploads\/{YEAR}\/{MONTH}\/[a-zA-Z_ùuù]+{DAY}\.{MONTH}\.{YEAR}[a-zA-Z_ùuù0-9\.]+/',
@@ -15,7 +14,7 @@ class PDF_To_Text
         SECRET_KEY_ID = 'ILOVEPDF_SECRET_KEY',
         PDF_FILE_PATH_ID = 'PDF_FILE_PATH',
         TEXT_FILE_PATH_ID = 'TEXT_FILE_PATH';
-
+    private static $instance;
     private $service_handler, $link;
 
     private function __construct()
@@ -55,20 +54,6 @@ class PDF_To_Text
     /**
      * @return bool
      */
-    private function downloadPDF(): bool
-    {
-        try {
-            $tmp_file = file_get_contents($this->link);
-            return file_put_contents(storage_path(env(self::PDF_FILE_PATH_ID)), $tmp_file) !== false;
-        } catch (Exception $x) {
-            Reporter::getInstance()->report(__CLASS__ . __FUNCTION__, $x->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * @return bool
-     */
 
     private function lookForPDFLink(): bool
     {
@@ -82,5 +67,19 @@ class PDF_To_Text
         }
         Reporter::getInstance()->report(__CLASS__ . __FUNCTION__, 'Unable to find a suitable link');
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    private function downloadPDF(): bool
+    {
+        try {
+            $tmp_file = file_get_contents($this->link);
+            return file_put_contents(storage_path(env(self::PDF_FILE_PATH_ID)), $tmp_file) !== false;
+        } catch (Exception $x) {
+            Reporter::getInstance()->report(__CLASS__ . __FUNCTION__, $x->getMessage());
+            return false;
+        }
     }
 }

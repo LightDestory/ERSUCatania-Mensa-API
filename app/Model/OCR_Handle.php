@@ -6,14 +6,12 @@ use Exception;
 
 class OCR_Handle
 {
-    private static $instance;
-
     private const
         REGEX_RULE_NAME = 'rule',
         REGEX_REPLACE_NAME = 'replace',
-        TYPOS_LIST_PATH = '/app/typos.json',
-        REMOVES_LIST_PATH = '/app/removes.json';
-
+        TYPOS_LIST_FILE_PATH_ID = 'TYPOS_LIST_FILE_PATH',
+        REMOVES_LIST_FILE_PATH_ID = 'REMOVES_LIST_FILE_PATH';
+    private static $instance;
     private $typos_fix_list, $removes_list;
 
     private $regex = array
@@ -31,11 +29,10 @@ class OCR_Handle
     private function __construct()
     {
         try {
-            $this->typos_fix_list = json_decode(file_get_contents(storage_path(self::TYPOS_LIST_PATH)), false);
-            $this->removes_list = json_decode(file_get_contents(storage_path(self::REMOVES_LIST_PATH)), false);
-        }
-        catch (Exception $ex){
-            Reporter::getInstance()->report(__CLASS__.__FUNCTION__, $ex->getMessage());
+            $this->typos_fix_list = json_decode(file_get_contents(storage_path(env(self::TYPOS_LIST_FILE_PATH_ID))), false);
+            $this->removes_list = json_decode(file_get_contents(storage_path(env(self::REMOVES_LIST_FILE_PATH_ID))), false);
+        } catch (Exception $ex) {
+            Reporter::getInstance()->report(__CLASS__ . __FUNCTION__, $ex->getMessage());
         }
     }
 
@@ -48,6 +45,31 @@ class OCR_Handle
             self::$instance = new OCR_Handle();
         }
         return self::$instance;
+    }
+
+    /**
+     * @param $raw
+     * @return array
+     */
+    public function parseIntoArray($raw): array
+    {
+        $refined = $this->applyRegex($raw);
+        $refined_array = explode("\n", $refined);
+        $refined_array = array_splice($refined_array, 1);
+        return $refined_array;
+    }
+
+    /**
+     * @param $raw
+     * @return string
+     */
+    private function applyRegex($raw): string
+    {
+        $norm = $this->normalize($raw);
+        foreach ($this->regex as $r) {
+            $norm = preg_replace($r[self::REGEX_RULE_NAME], $r[self::REGEX_REPLACE_NAME], $norm);
+        }
+        return $norm;
     }
 
     /**
@@ -88,28 +110,22 @@ class OCR_Handle
         return $raw;
     }
 
-    /**
-     * @param $raw
-     * @return string
-     */
-    private function applyRegex($raw): string
+    public function learn($array): void
     {
-        $norm = $this->normalize($raw);
-        foreach ($this->regex as $r) {
-            $norm = preg_replace($r[self::REGEX_RULE_NAME], $r[self::REGEX_REPLACE_NAME], $norm);
+        $learning = [];
+        foreach ($array as $dish){
+            if(!in_array($dish, $this->typos_fix_list, false)){
+                $learning[] = $dish;
+            }
         }
-        return $norm;
-    }
-
-    /**
-     * @param $raw
-     * @return array
-     */
-    public function parseIntoArray($raw): array
-    {
-        $refined = $this->applyRegex($raw);
-        $refined_array = explode("\n", $refined);
-        $refined_array = array_splice($refined_array, 1);
-        return $refined_array;
+        if(count($learning)>0){
+            try{
+                $this->typos_fix_list = array_merge($this->typos_fix_list, $learning);
+                file_put_contents(storage_path(env(self::TYPOS_LIST_FILE_PATH_ID)), json_encode($this->typos_fix_list, JSON_UNESCAPED_UNICODE));
+                Reporter::getInstance()->report(__FUNCTION__, 'Nuove pietanze: ' . count($learning));
+            } catch (Exception $ex){
+                Reporter::getInstance()->report(__FUNCTION__, $ex->getMessage());
+            }
+        }
     }
 }
