@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use Exception;
+
 class OCR_Handle
 {
     private static $instance;
@@ -17,7 +19,7 @@ class OCR_Handle
     private $regex = array
     (
         array(self::REGEX_RULE_NAME => '/(PRIMI|SECONDI|PIATTI|CONTORNI|PRANZO|CENA|LUNEDI’|MARTEDI’|MERCOLEDI’|GIOVEDI’|VENERDI’|SABATO|DOMENICA)/i', self::REGEX_REPLACE_NAME => ''),
-        array(self::REGEX_RULE_NAME => "/(Men(u|ù) dal [0-9]{1,2}(\.|\\|\/)[0-9]{1,2}(\.|\\|\/)[0-9]{4} al [0-9]{1,2}(\.|\\|\/)[0-9]{1,2}(\.|\\|\/)[0-9]{4})/i", self::REGEX_REPLACE_NAME => ''),
+        array(self::REGEX_RULE_NAME => "/(Men(u|ù|u') dal [0-9]{1,2}(\.|\\|\/)[0-9]{1,2}(\.|\\|\/)[0-9]{4} al [0-9]{1,2}(\.|\\|\/)[0-9]{1,2}(\.|\\|\/)[0-9]{4})/i", self::REGEX_REPLACE_NAME => ''),
         array(self::REGEX_RULE_NAME => '/ ([A-Z])/', self::REGEX_REPLACE_NAME => "\n$1"),
         array(self::REGEX_RULE_NAME => "/([ ]*\r?\n[ ]*)+/", self::REGEX_REPLACE_NAME => "\n"),
         array(self::REGEX_RULE_NAME => "/\r?\n$/", self::REGEX_REPLACE_NAME => '')
@@ -32,15 +34,15 @@ class OCR_Handle
             $this->typos_fix_list = json_decode(file_get_contents(storage_path(self::TYPOS_LIST_PATH)), false);
             $this->removes_list = json_decode(file_get_contents(storage_path(self::REMOVES_LIST_PATH)), false);
         }
-        catch (\Exception $ex){
+        catch (Exception $ex){
             Reporter::getInstance()->report(__CLASS__.__FUNCTION__, $ex->getMessage());
         }
     }
 
     /**
-     * @return OCR_Handle|null
+     * @return OCR_Handle
      */
-    public static function getInstance(): ?OCR_Handle
+    public static function getInstance(): OCR_Handle
     {
         if (!self::$instance) {
             self::$instance = new OCR_Handle();
@@ -57,8 +59,8 @@ class OCR_Handle
         $raw = mb_convert_encoding($raw, 'UTF-8', 'UTF-16LE');
         $raw = preg_replace('/[ ]+/', ' ', $raw);
         $raw = preg_replace('/\//', ' o ', $raw);
-        $this->replaceTypos($raw);
-        $this->removeCrap($raw);
+        $raw = $this->replaceTypos($raw);
+        $raw = $this->removeCrap($raw);
         return $raw;
     }
 
@@ -107,9 +109,7 @@ class OCR_Handle
     {
         $refined = $this->applyRegex($raw);
         $refined_array = explode("\n", $refined);
-        if ($refined_array[0] === '') {
-            $refined_array = array_splice($refined_array, 1);
-        }
+        $refined_array = array_splice($refined_array, 1);
         return $refined_array;
     }
 }
