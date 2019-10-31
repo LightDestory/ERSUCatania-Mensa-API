@@ -36,6 +36,18 @@ __This process will be performed every 15 minutes when the current week menu is 
 
 ---
 
+### Features
+
+- [x] PDF to readable list conversion
+- [x] Auto fetch for new menu
+- [x] Simple API
+- [x] Auto learning system to fix typos
+- [x] Error Reporting mailing system
+- [x] High customization of the environment
+- [x] Clean code style
+
+---
+
 ### Usage
 
 - The API's documentation is available inside the [documentation](./documentation) folder

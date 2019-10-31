@@ -42,6 +42,7 @@ class Reporter
             Mail::send('emails.alert', ['caller' => $caller, 'text' => $text, 'date' => date('d-m-Y')], static function (Message $message) {
                 $message->to(env(self::ERROR_REPORTING_MAIL_ID))->subject('ERSUCatania Mensa Reporting');
             });
+            file_put_contents(storage_path(env(self::ALREADY_REPORT_FILE_FLAG_PATH_ID)), '1');
         }
     }
 
