@@ -66,6 +66,7 @@ class ErsuMensa
         if(file_exists(storage_path(env(Reporter::ALREADY_REPORT_FILE_FLAG_PATH_ID)))) {
             unlink(storage_path(env(Reporter::ALREADY_REPORT_FILE_FLAG_PATH_ID)));
         }
+        Reporter::getInstance()->report(__FUNCTION__, Reporter::SUCCESSFUL_RUNTIME);
     }
 
     /**
